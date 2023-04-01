@@ -1,2 +1,3 @@
 # ignus
- basic shell written in C
+Vim like editor
+Currently work in progress
