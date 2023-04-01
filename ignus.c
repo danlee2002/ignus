@@ -7,7 +7,7 @@
 #define CTRL_KEY(k) ((k) & 0x1f)
 //data
 struct termios orig_termios;
-
+//terminal section
 //error handling 
 void die(const char *s) {
     perror(s);
@@ -31,19 +31,35 @@ void enableRawMode() {
     raw.c_cc[VTIME] = 1;
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcgetattr");
 }
+//I/O stuff 
+char editorReadKey() {
+    int nread;
+    char c;
+    while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
+        if (nread == -1 && errno != EAGAIN) die("read");
+    }
+    return c;
+}
+
+//reads key and exists in event of ctrl + q
+void editorProcessorKeypress() {
+    char c = editorReadKey();
+    switch (c) {
+        case CTRL_KEY('q'):
+            exit(0);
+            break;
+    }
+}
+//refreshes screen
+void editorRefreshScreen() {
+  write(STDOUT_FILENO, "\x1b[2J", 4);
+}
 
 int main () {
     enableRawMode(); //turns on raw mode
     //program exits as soon as q is pressed, else reads input based on character
     while (1) {
-        char c = '\0';
-        if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) die("read");
-        if (iscntrl(c)) {
-            printf("%d\r\n", c);
-        } else {
-        printf("%d ('%c')\r\n", c, c);
-    }
-    if (c == CTRL_KEY('q')) break;
+        editorProcessorKeypress();
   }
     return 0; 
 }
