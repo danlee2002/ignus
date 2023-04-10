@@ -207,10 +207,12 @@ void editorProcessorKeypress() {
     case PAGE_DOWN:
       {
         int times = E.screenrows;
+        //brings cursor up 
         while (times--)
           editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
       }
       break;
+
     case 'w':
     case 'a':
     case 's':
